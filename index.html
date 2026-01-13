@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz SASP – Cyber Mobile UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    /* ============================================================
+       🎨 DESIGN GLOBAL – STYLE CYBER-POLICE / iOS 17
+       ============================================================ */
+
+    :root {
+      --bg-main:#020617;
+      --bg-card:rgba(15,23,42,0.9);
+      --accent:#2563eb;
+      --accent-soft:#38bdf8;
+      --text-main:#e5e7eb;
+      --text-muted:#9ca3af;
+      --danger:#f97373;
+      --success:#4ade80;
+      --border-soft:rgba(148,163,184,0.4);
+    }
+
+    :root[data-theme="light"] {
+      --bg-main:#f3f4f6;
+      --bg-card:rgba(255,255,255,0.9);
+      --accent:#2563eb;
+      --accent-soft:#0ea5e9;
+      --text-main:#111827;
+      --text-muted:#6b7280;
+      --danger:#ef4444;
+      --success:#16a34a;
+      --border-soft:rgba(209,213,219,0.9);
+    }
+
+    * {
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+      background:radial-gradient(circle at top,#1d4ed8 0,#020617 45%,#000 100%);
+      margin:0;
+      padding:16px;
+      color:var(--text-main);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* ============================================================
+       🧱 COQUE PRINCIPALE (APP MOBILE)
+       ============================================================ */
+
+    .app-shell {
+      width:100%;
+      max-width:420px;
+      margin:auto;
+      background:linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.85));
+      border-radius:32px;
+      padding:18px 18px 22px;
+      box-shadow:
+        0 22px 60px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(148,163,184,0.18);
+      backdrop-filter:blur(24px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* ============================================================
+       🔝 BARRE DU HAUT + TOGGLE THÈME
+       ============================================================ */
+
+    .top-bar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+
+    .top-title {
+      font-size:0.8rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--accent-soft);
+    }
+
+    .theme-toggle {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:0.75rem;
+      color:var(--text-muted);
+    }
+
+    .toggle-btn {
+      width:46px;
+      height:24px;
+      background:rgba(15,23,42,0.9);
+      border-radius:999px;
+      border:1px solid var(--border-soft);
+      display:flex;
+      align-items:center;
+      padding:2px;
+      cursor:pointer;
+      position:relative;
+    }
+
+    .toggle-thumb {
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      background:linear-gradient(135deg,#f9fafb,#e5e7eb);
+      box-shadow:0 4px 10px rgba(15,23,42,0.4);
+      transform:translateX(0);
+      transition:transform .25s ease;
+    }
+
+    .toggle-btn[data-mode="dark"] .toggle-thumb {
+      transform:translateX(20px);
+    }
+
+    /* ============================================================
+       🏁 ÉCRAN D’ACCUEIL IMMERSIF
+       ============================================================ */
+
+    #intro {
+      text-align:center;
+      padding:22px 10px 10px;
+      animation:fadeIn .5s ease;
+    }
+
+    .intro-icon {
+      font-size:2.4rem;
+      margin-bottom:8px;
+    }
+
+    .intro-title {
+      font-size:1.25rem;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .intro-subtitle {
+      font-size:0.82rem;
+      color:var(--text-muted);
+      margin-bottom:14px;
+    }
+
+    .intro-badge {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:5px 10px;
+      border-radius:999px;
+      background:rgba(37,99,235,0.16);
+      border:1px solid rgba(56,189,248,0.4);
+      font-size:0.75rem;
+      color:var(--accent-soft);
+      margin-bottom:14px;
+    }
+
+    .intro-text {
+      font-size:0.82rem;
+      color:var(--text-muted);
+      margin-bottom:18px;
+      line-height:1.4;
+    }
+
+    /* ============================================================
+       📋 EN-TÊTE DU QUIZ + PROGRESSION
+       ============================================================ */
+
+    .header-main {
+      margin-bottom:16px;
+      display:none;
+      animation:fadeIn .45s ease;
+    }
+
+    h1 {
+      font-size:1.3rem;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .badge {
+      font-size:0.7rem;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(37,99,235,0.15);
+      border:1px solid rgba(56,189,248,0.4);
+      color:var(--accent-soft);
+    }
+
+    .subtext {
+      font-size:0.82rem;
+      color:var(--text-muted);
+      margin-top:4px;
+    }
+
+    .progress {
+      width:100%;
+      height:8px;
+      border-radius:999px;
+      background:rgba(15,23,42,0.9);
+      border:1px solid var(--border-soft);
+      margin-bottom:14px;
+      overflow:hidden;
+      display:none;
+    }
+
+    .progress-bar {
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#2563eb,#38bdf8);
+      border-radius:999px;
+      transition:width 0.4s ease;
+    }
+
+    /* ============================================================
+       🃏 CARTES QUESTIONS + RÉPONSES
+       ============================================================ */
+
+    .card {
+      background:var(--bg-card);
+      border-radius:22px;
+      padding:16px 14px;
+      border:1px solid var(--border-soft);
+      box-shadow:0 12px 28px rgba(15,23,42,0.45);
+    }
+
+    .question-meta {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:0.75rem;
+      color:var(--text-muted);
+      margin-bottom:10px;
+    }
+
+    .question-index {
+      font-weight:600;
+      color:var(--accent-soft);
+    }
+
+    .question-score {
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.6);
+    }
+
+    .question-text {
+      font-size:1rem;
+      font-weight:600;
+      margin-bottom:12px;
+    }
+
+    .answers {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .answer {
+      background:rgba(15,23,42,0.85);
+      padding:10px 11px;
+      border-radius:14px;
+      cursor:pointer;
+      border:1px solid rgba(31,41,55,0.9);
+      font-size:0.9rem;
+      color:var(--text-main);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      transform:translateY(0);
+      opacity:0;
+      animation:fadeSlideIn .35s ease forwards;
+    }
+
+    .answer-label {
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.7);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:0.65rem;
+      color:var(--text-muted);
+    }
+
+    .answer:hover {
+      border-color:var(--accent-soft);
+      background:rgba(15,23,42,1);
+      transform:translateY(-1px);
+    }
+
+    .answer.selected {
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      border-color:#60a5fa;
+      color:#f9fafb;
+    }
+
+    .answer.selected .answer-label {
+      border-color:#bfdbfe;
+      background:rgba(191,219,254,0.15);
+      color:#e5e7eb;
+    }
+
+    /* ============================================================
+       📊 RÉSULTATS
+       ============================================================ */
+
+    #result {
+      display:none;
+      animation:fadeIn .4s ease;
+    }
+
+    .result-score {
+      font-size:1.2rem;
+      margin-bottom:6px;
+    }
+
+    .result-status {
+      font-size:0.95rem;
+      margin-bottom:10px;
+    }
+
+    .success {
+      color:var(--success);
+      font-weight:600;
+    }
+
+    .fail {
+      color:var(--danger);
+      font-weight:600;
+    }
+
+    .report {
+      margin-top:12px;
+      font-size:0.82rem;
+      background:rgba(15,23,42,0.9);
+      padding:10px 11px;
+      border-radius:15px;
+      border:1px solid var(--border-soft);
+      max-height:220px;
+      overflow-y:auto;
+    }
+
+    .report-item {
+      margin-bottom:8px;
+    }
+
+    .report-item span.q {
+      display:block;
+      font-weight:600;
+    }
+
+    .report-item span.r {
+      display:block;
+      color:var(--text-muted);
+    }
+
+    /* ============================================================
+       🧩 BOUTONS
+       ============================================================ */
+
+    button {
+      margin-top:12px;
+      padding:11px;
+      width:100%;
+      border:none;
+      border-radius:999px;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#f9fafb;
+      font-size:0.95rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform .18s ease,box-shadow .18s ease,opacity .2s ease;
+      box-shadow:0 14px 28px rgba(37,99,235,0.45);
+    }
+
+    button:hover {
+      transform:translateY(-1px);
+      box-shadow:0 18px 36px rgba(37,99,235,0.55);
+    }
+
+    button:active {
+      transform:translateY(0);
+      box-shadow:0 8px 18px rgba(37,99,235,0.4);
+    }
+
+    /* ============================================================
+       🎞️ ANIMATIONS
+       ============================================================ */
+
+    @keyframes fadeSlideIn {
+      from { opacity:0; transform:translateY(6px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ============================================================
+         🏁 ÉCRAN D’ACCUEIL IMMERSIF
+         ============================================================ -->
+    <div id="intro">
+      <div class="intro-icon">🚔</div>
+
+      <div class="intro-title">Quiz SASP – Astro City</div>
+
+      <div class="intro-badge">
+        Unité Cyber • Évaluation RP
+      </div>
+
+      <div class="intro-subtitle">
+        Test officiel d’entrée au SASP
+      </div>
+
+      <p class="intro-text">
+        Ce questionnaire évalue vos connaissances RP, votre logique et votre
+        capacité à appliquer les procédures SASP.<br><br>
+        Cliquez sur le bouton ci‑dessous pour commencer.
+      </p>
+
+      <button onclick="demarrerQuiz()">🎬 Commencer le questionnaire</button>
+    </div>
+
+    <!-- ============================================================
+         🔝 EN-TÊTE DU QUIZ (masqué tant que l’utilisateur n’a pas commencé)
+         ============================================================ -->
+    <div class="top-bar" id="topBar" style="display:none;">
+      <div>
+        <div class="top-title">SASP • CYBER UNIT</div>
+      </div>
+
+      <div class="theme-toggle">
+        <span id="themeLabel">Dark</span>
+        <div class="toggle-btn" id="themeToggle" data-mode="dark">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-main" id="headerMain">
+      <h1>🚔 Quiz SASP</h1>
+      <div class="badge">Évaluation interne RP</div>
+      <p class="subtext">
+        Version mobile premium – Astro City • Score minimum requis pour validation.
+      </p>
+    </div>
+
+    <!-- Barre de progression -->
+    <div class="progress" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Zone où les questions apparaissent -->
+    <div id="quiz"></div>
+
+    <!-- ============================================================
+         📊 RÉSULTATS (corrigé : bouton recommencer retiré)
+         ============================================================ -->
+    <div id="result">
+      <h2 style="font-size:1rem;margin:10px 0 6px;">📊 Résultat final</h2>
+
+      <p id="scoreText" class="result-score"></p>
+      <p id="statusText" class="result-status"></p>
+
+      <div id="details" class="report"></div>
+
+      <button onclick="envoyerRapport()">📤 Envoyer le rapport sur Discord</button>
+    </div>
+
+  </div>
+<script>
+/* ============================================================
+   🎯 SCRIPT DU QUIZ SASP – COMMENTAIRES NIVEAU 2 (FR)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   🔧 CONFIGURATION GÉNÉRALE
+   ------------------------------------------------------------ */
+
+/* Webhook Discord pour envoyer les résultats */
+const WEBHOOK_URL = "VOTRE_WEBHOOK_URL_ICI";
+
+/* Score minimum requis pour valider le test */
+const SCORE_MIN = 70;
+
+/* ------------------------------------------------------------
+   📌 LISTE DES QUESTIONS
+   ------------------------------------------------------------ */
+const questions = [
+    {q:"Que signifie SASP ?",a:["San Andreas State Police","Service Automobile","Security Patrol","Assistance Sécuritaire"],c:0,p:1},
+    {q:"Mission principale du SASP ?",a:["Poursuites","Protection et ordre public","Amendes","Autoroutes"],c:1,p:1},
+    {q:"Un feu rouge grillé ?",a:["Ignorer","Contrôler et verbaliser","Poursuivre sans gyro","Tirer"],c:1,p:1},
+    {q:"Un civil vous insulte ?",a:["Insulter","Rester pro et verbaliser","Arrêter direct","Laisser partir"],c:1,p:1},
+    {q:"Arme trouvée sur un suspect ?",a:["La garder","Saisir et vérifier","La jeter","La rendre"],c:1,p:1},
+
+    /* Questions CEVITAL (2 points chacune) */
+    {q:"Que signifie CEVITAL ?",a:["Centre tactique","Certification Élévation Visée Index Tir Analyse Latéralité","Code engagement","Contrôle sécurité"],c:1,p:2},
+    {q:"Nombre d’étapes CEVITAL ?",a:["5","6","7","8"],c:2,p:2},
+    {q:"Première étape du CEVITAL ?",a:["Élévation","Certification","Visée","Index"],c:1,p:2},
+    {q:"Dernière étape du CEVITAL ?",a:["Tir","Analyse","Latéralité","Visée"],c:2,p:2},
+    {q:"CEVITAL s’applique quand ?",a:["Entraînement","Usage arme","Guerre","Jamais"],c:1,p:2},
+    {q:"Phase Certification ?",a:["Chargeur","Paramètres tir","Autorisation","Danger"],c:1,p:2},
+    {q:"Civil proche de la cible ?",a:["Tirer","Ne pas tirer","Tirer vite","L’écarter"],c:1,p:2},
+    {q:"Phase Élévation ?",a:["Monter","Lever arme et contrôler","Crier","Lever au ciel"],c:1,p:2},
+    {q:"Importance Élévation ?",a:["Impressionner","Dernier contrôle","Viser","Recharger"],c:1,p:2},
+    {q:"Phase Index ?",a:["Heure","Index sur détente","Pointer","Compter"],c:1,p:2},
+    {q:"Index avant I ?",a:["Sur détente","Hors détente","Chargeur","Canon"],c:1,p:2},
+    {q:"Pourquoi Analyse ?",a:["Recharger","Sortir tunnel","Ranger","Renfort"],c:1,p:2},
+    {q:"Latéralité ?",a:["Sécurité","Observer abords","Nouvelle cible","Quitter"],c:1,p:2},
+
+    /* Questions attention */
+    {q:"Couleur du cheval blanc d’Henri IV ?",a:["Blanc","Noir","Gris","Marron"],c:0,p:1},
+    {q:"2+2 ?",a:["4","3","5","42"],c:0,p:1},
+    {q:"Policier respectueux ?",a:["Oui","Toujours","Non","Obligatoire"],c:1,p:1},
+    {q:"Instruction spéciale ?",a:["Réponse A","B","C","D"],c:0,p:1},
+    {q:"Prêt à rejoindre le SASP ?",a:["Oui","Non","Peut-être","Certainement"],c:0,p:1}
+];
+
+/* ------------------------------------------------------------
+   📌 VARIABLES DE SUIVI
+   ------------------------------------------------------------ */
+let index = 0;
+let score = 0;
+let historique = [];
+
+const quizEl = document.getElementById("quiz");
+const progressBar = document.getElementById("progressBar");
+
+/* ------------------------------------------------------------
+   🌗 GESTION DU MODE LIGHT / DARK
+   ------------------------------------------------------------ */
+
+function applyTheme(mode, fromUser=false){
+    if(mode==="light"){
+        document.documentElement.setAttribute("data-theme","light");
+        themeToggle.dataset.mode="light";
+        themeLabel.textContent="Light";
+    } else {
+        document.documentElement.setAttribute("data-theme","dark");
+        themeToggle.dataset.mode="dark";
+        themeLabel.textContent="Dark";
+    }
+
+    if(fromUser){
+        try{ localStorage.setItem("sasp-theme",mode); }catch(e){}
+    }
+}
+
+(function initTheme(){
+    let stored = null;
+    try{ stored = localStorage.getItem("sasp-theme"); }catch(e){}
+
+    if(stored==="light" || stored==="dark"){
+        applyTheme(stored,false);
+    } else {
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        applyTheme(prefersLight ? "light" : "dark", false);
+    }
+})();
+
+const themeToggle = document.getElementById("themeToggle");
+const themeLabel = document.getElementById("themeLabel");
+
+themeToggle.addEventListener("click",()=>{
+    const current = themeToggle.dataset.mode;
+    applyTheme(current==="light" ? "dark" : "light", true);
+});
+
+/* ------------------------------------------------------------
+   🏁 DÉMARRAGE DU QUIZ
+   ------------------------------------------------------------ */
+
+function demarrerQuiz(){
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("topBar").style.display = "flex";
+    document.getElementById("headerMain").style.display = "block";
+    document.getElementById("progressContainer").style.display = "block";
+
+    afficherQuestion();
+}
+
+/* ------------------------------------------------------------
+   📌 PROGRESSION
+   ------------------------------------------------------------ */
+function updateProgress(){
+    const percent = (index / questions.length) * 100;
+    progressBar.style.width = percent + "%";
+}
+
+/* ------------------------------------------------------------
+   📌 AFFICHAGE QUESTION
+   ------------------------------------------------------------ */
+function afficherQuestion(){
+    updateProgress();
+    quizEl.innerHTML = "";
+
+    if(index >= questions.length){
+        fin();
+        return;
+    }
+
+    const q = questions[index];
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.animation = "fadeIn .35s ease";
+
+    const meta = document.createElement("div");
+    meta.className = "question-meta";
+    meta.innerHTML =
+        `<span class="question-index">Question ${index+1}/${questions.length}</span>
+         <span class="question-score">${q.p} pt${q.p>1?"s":""}</span>`;
+    card.appendChild(meta);
+
+    const qText = document.createElement("div");
+    qText.className = "question-text";
+    qText.textContent = q.q;
+    card.appendChild(qText);
+
+    const answersWrap = document.createElement("div");
+    answersWrap.className = "answers";
+
+    const labels = ["A","B","C","D"];
+
+    q.a.forEach((rep,i)=>{
+        const ans = document.createElement("div");
+        ans.className = "answer";
+        ans.style.animationDelay = (i*0.04)+"s";
+        ans.onclick = ()=>repondre(i);
+
+        const lbl = document.createElement("div");
+        lbl.className = "answer-label";
+        lbl.textContent = labels[i] || "•";
+
+        const txt = document.createElement("div");
+        txt.textContent = rep;
+
+        ans.appendChild(lbl);
+        ans.appendChild(txt);
+        answersWrap.appendChild(ans);
+    });
+
+    card.appendChild(answersWrap);
+    quizEl.appendChild(card);
+}
+
+/* ------------------------------------------------------------
+   📌 TRAITEMENT RÉPONSE
+   ------------------------------------------------------------ */
+function repondre(i){
+    const q = questions[index];
+    const ok = i === q.c;
+
+    if(ok) score += q.p;
+
+    historique.push({q:q.q,r:q.a[i],ok:ok});
+
+    index++;
+    afficherQuestion();
+}
+
+/* ------------------------------------------------------------
+   📌 FIN DU QUIZ
+   ------------------------------------------------------------ */
+function fin(){
+    quizEl.style.display = "none";
+    document.getElementById("result").style.display = "block";
+
+    const total = questions.reduce((s,q)=>s+q.p,0);
+    const percent = Math.round((score/total)*100);
+
+    document.getElementById("scoreText").innerHTML =
+        `Score : <strong>${percent}%</strong> (${score}/${total})`;
+
+    if(percent >= SCORE_MIN){
+        document.getElementById("statusText").innerHTML =
+            `<span class="success">🎉 Test validé. Vous remplissez les critères du SASP.</span>`;
+    } else {
+        document.getElementById("statusText").innerHTML =
+            `<span class="fail">❌ Test non validé. Score minimum requis : ${SCORE_MIN}%.</span>`;
+    }
+
+    let d = "";
+    historique.forEach((h,i)=>{
+        d += `<div class="report-item">
+                <span class="q">${h.ok?"✅":"❌"} Q${i+1} – ${h.q}</span>
+                <span class="r">Réponse donnée : ${h.r}</span>
+              </div>`;
+    });
+
+    document.getElementById("details").innerHTML = d;
+}
+
+/* ------------------------------------------------------------
+   📤 ENVOI DISCORD
+   ------------------------------------------------------------ */
+async function envoyerRapport(){
+    if(WEBHOOK_URL==="VOTRE_WEBHOOK_URL_ICI"){
+        alert("Webhook non configuré");
+        return;
+    }
+
+    let txt = "📋 **Rapport Quiz SASP – RP**\n\n";
+    historique.forEach((h,i)=>{
+        txt += `${h.ok?"✅":"❌"} Q${i+1}: ${h.q}\n`;
+    });
+    txt += `\n🎯 Score final : ${score}`;
+
+    await fetch(WEBHOOK_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({content:txt})
+    });
+
+    alert("Rapport envoyé sur Discord");
+}
+</script>
+</body>
+</html>
